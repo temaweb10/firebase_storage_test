@@ -7,36 +7,43 @@ function App() {
   const [imageUpload, setImageUpload] = useState(null);
   const [imageList, setImageList] = useState([]);
 
-  const imageListRef = ref(storage, "images/");
+  const imageListRef = ref(storage, "post_images/");
 
   const uploadImage = () => {
     if (imageUpload == null) return;
-
-    const imageRef = ref(storage, `images/${v4()}`);
-    uploadBytes(imageRef, imageUpload).then((snapShot) => {
-      getDownloadURL(snapShot.ref).then((url) => {
-        setImageList((prev) => [...prev, url]);
+    console.log(imageUpload);
+    const imageRef = ref(storage, `post_images/${v4()}`);
+    for (let i = 0; i < imageUpload.length; i++) {
+      console.log(imageUpload[i]);
+      uploadBytes(imageRef, imageUpload[i]).then((snapShot) => {
+        console.log(snapShot);
+        getDownloadURL(snapShot.ref).then((url) => {
+          setImageList((prev) => [...prev, url]);
+        });
       });
-    });
+    }
   };
   useEffect(() => {
-    listAll(imageListRef).then((response) => {
+    console.log(imageList);
+    /*  listAll(imageListRef).then((response) => {
       response.items.forEach((item) => {
         getDownloadURL(item).then((url) => {
           setImageList((prev) => [...prev, url]);
         });
       });
-    });
-  }, []);
+    }); */
+  }, [imageList]);
   return (
     <div className="App">
       <input
         type="file"
-        onChange={(event) => setImageUpload(event.target.files[0])}
+        multiple={true}
+        accept="image/*,image/jpeg"
+        onChange={(event) => setImageUpload(event.target.files)}
       />
       <button onClick={uploadImage}>Upload Image</button>
       {imageList.map((url) => {
-        return <img src={url} />;
+        return <img src={url} style={{ width: "200px" }} key={v4()} />;
       })}
     </div>
   );
